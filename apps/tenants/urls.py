@@ -1,0 +1,3 @@
+from django.urls import path
+from .views import tenant_list, tenant_create, tenant_update, tenant_delete, tenant_unit_create, tenant_unit_update, tenant_unit_delete, occupancy_list
+urlpatterns=[path("",tenant_list,name="tenant_list"), path("new/",tenant_create,name="tenant_create"), path("<int:pk>/edit/",tenant_update,name="tenant_update"), path("<int:pk>/delete/",tenant_delete,name="tenant_delete"), path("occupancies/",occupancy_list,name="occupancy_list"), path("occupancies/new/",tenant_unit_create,name="tenant_unit_create"), path("occupancies/<int:pk>/edit/",tenant_unit_update,name="tenant_unit_update"), path("occupancies/<int:pk>/delete/",tenant_unit_delete,name="tenant_unit_delete")]

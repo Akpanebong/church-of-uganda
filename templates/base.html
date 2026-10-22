@@ -1,0 +1,353 @@
+{% load static estate_tags %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#35164f">
+
+    <title>{% block title %}{{ app_name|default:"Diocesan Estates" }}{% endblock %}</title>
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+    <link href="{% static 'css/estate.css' %}" rel="stylesheet">
+    <link href="{% static 'css/forms.css' %}" rel="stylesheet">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+<div class="app-shell">
+
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+        <a href="{% url 'dashboard' %}" class="brand text-decoration-none">
+            <div class="brand-mark logo-mark">
+                <img
+                    src="{% static 'images/logo.jpg' %}"
+                    alt="Diocese of Madi West Nile logo"
+                    width="44"
+                    height="44"
+                >
+            </div>
+            <div class="brand-copy">
+                <strong>Diocesan Estates</strong>
+                <small>{{ diocese_profile.diocese_name|default:"Madi West Nile" }}</small>
+            </div>
+        </a>
+
+        <div class="sidebar-section">ESTATES OFFICE</div>
+
+        <a href="{% url 'dashboard' %}"
+           class="nav-item{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}">
+            <i class="bi bi-grid-1x2-fill" aria-hidden="true"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <details class="nav-group"
+                 {% if request.resolver_match.url_name in 'property_list property_create building_create unit_create' %}open{% endif %}>
+            <summary class="nav-item">
+                <i class="bi bi-buildings" aria-hidden="true"></i>
+                <span>Property portfolio</span>
+                <i class="bi bi-chevron-down ms-auto small nav-chevron" aria-hidden="true"></i>
+            </summary>
+            <div class="nav-sub">
+                <a href="{% url 'property_list' %}">Master property register</a>
+                <a href="{% url 'property_create' %}">Add property</a>
+                <a href="{% url 'building_create' %}">Add building</a>
+                <a href="{% url 'unit_create' %}">Add unit</a>
+            </div>
+        </details>
+
+        <details class="nav-group"
+                 {% if request.resolver_match.url_name in 'tenant_list occupancy_list tenant_create tenant_unit_create lease_list lease_create' %}open{% endif %}>
+            <summary class="nav-item">
+                <i class="bi bi-people" aria-hidden="true"></i>
+                <span>People and tenancy</span>
+                <i class="bi bi-chevron-down ms-auto small nav-chevron" aria-hidden="true"></i>
+            </summary>
+            <div class="nav-sub">
+                <a href="{% url 'tenant_list' %}">Tenants</a>
+                <a href="{% url 'occupancy_list' %}">Occupancy records</a>
+                <a href="{% url 'tenant_create' %}">Add tenant</a>
+                {% if request.user.username == 'j' %}
+                <a href="{% url 'tenant_unit_create' %}">Record occupancy</a>
+                {% endif %}
+                <a href="{% url 'lease_list' %}">Leases</a>
+                <a href="{% url 'lease_create' %}">Create lease</a>
+            </div>
+        </details>
+
+        <details class="nav-group"
+                 {% if request.resolver_match.url_name in 'finance_d invoice_create payment_create expense_create' %}open{% endif %}>
+            <summary class="nav-item">
+                <i class="bi bi-wallet2" aria-hidden="true"></i>
+                <span>Finance</span>
+                <i class="bi bi-chevron-down ms-auto small nav-chevron" aria-hidden="true"></i>
+            </summary>
+            <div class="nav-sub">
+                <a href="{% url 'finance_d' %}">Finance dashboard</a>
+                {% if request.user.username == 'j' %}
+                <a href="{% url 'invoice_create' %}">Create invoice</a>
+                 {% endif %}
+                <a href="{% url 'payment_create' %}">Record payment</a>
+                <a href="{% url 'expense_create' %}">Add expense</a>
+            </div>
+        </details>
+
+        <details class="nav-group"
+                 {% if request.resolver_match.url_name in 'operations inspection_register project_register dispute_register risk_register compliance_register asset_register asset_create contractor_register contractor_create visitor_register visitor_create parking_register parking_space_create meter_register meter_reading_create' %}open{% endif %}>
+            <summary class="nav-item">
+                <i class="bi bi-diagram-3" aria-hidden="true"></i>
+                <span>Estates operations</span>
+                <i class="bi bi-chevron-down ms-auto small nav-chevron" aria-hidden="true"></i>
+            </summary>
+            <div class="nav-sub">
+                <a href="{% url 'operations' %}">Operations overview</a>
+                <a href="{% url 'inspection_register' %}">Inspections</a>
+                <a href="{% url 'project_register' %}">Development projects</a>
+                <a href="{% url 'dispute_register' %}">Disputes and encroachment</a>
+                <a href="{% url 'risk_register' %}">Risk register</a>
+                <a href="{% url 'compliance_register' %}">Compliance</a>
+                <a href="{% url 'asset_register' %}">Assets</a>
+                <a href="{% url 'asset_create' %}">Add asset</a>
+                <a href="{% url 'contractor_register' %}">Contractors</a>
+                <a href="{% url 'contractor_create' %}">Add contractor</a>
+                <a href="{% url 'visitor_register' %}">Visitors</a>
+                <a href="{% url 'visitor_create' %}">Log visitor</a>
+                <a href="{% url 'parking_register' %}">Parking</a>
+                <a href="{% url 'parking_space_create' %}">Add parking space</a>
+                <a href="{% url 'meter_register' %}">Utility meters</a>
+                <a href="{% url 'meter_reading_create' %}">Add meter reading</a>
+            </div>
+        </details>
+
+        <div class="sidebar-section">GOVERNANCE</div>
+
+        <details class="nav-group"
+                 {% if request.resolver_match.url_name in 'estate_document_list estate_document_create diocese_profile index' %}open{% endif %}>
+            <summary class="nav-item">
+                <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                <span>Records and controls</span>
+                <i class="bi bi-chevron-down ms-auto small nav-chevron" aria-hidden="true"></i>
+            </summary>
+            <div class="nav-sub">
+                <a href="{% url 'estate_document_list' %}">Estate records</a>
+                <a href="{% url 'estate_document_create' %}">Add estate record</a>
+                <a href="{% url 'diocese_profile' %}">Diocese profile</a>
+                <a href="{% url 'admin:index' %}">Administration</a>
+            </div>
+        </details>
+
+        <a href="{% url 'staff_profile' %}"
+           class="nav-item{% if request.resolver_match.url_name == 'staff_profile' %} active{% endif %}">
+            <i class="bi bi-person-badge" aria-hidden="true"></i>
+            <span>My staff account</span>
+        </a>
+
+        <a href="{% url 'staff_register' %}"
+           class="nav-item{% if request.resolver_match.url_name == 'staff_register' %} active{% endif %}">
+            <i class="bi bi-person-plus" aria-hidden="true"></i>
+            <span>Register staff</span>
+        </a>
+
+        <a href="{% url 'notifications' %}"
+           class="nav-item{% if request.resolver_match.url_name == 'notifications' %} active{% endif %}">
+            <i class="bi bi-bell" aria-hidden="true"></i>
+            <span>Notifications</span>
+            {% if unread_notifications %}
+                <span class="badge bg-danger ms-auto">{{ unread_notifications }}</span>
+            {% endif %}
+        </a>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <button
+                type="button"
+                class="btn icon-btn"
+                id="sidebarToggle"
+                aria-label="Toggle navigation sidebar"
+                aria-controls="sidebar"
+                aria-expanded="true"
+            >
+                <i class="bi bi-list" aria-hidden="true"></i>
+            </button>
+
+            <form class="search-box" method="get" action="{% url 'global_search' %}" role="search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ request.GET.q }}"
+                    placeholder="Search properties, tenants, leases..."
+                    aria-label="Search estate records"
+                    autocomplete="off"
+                >
+                <div class="live-search-results" id="liveSearchResults" role="listbox" aria-label="Search suggestions"></div>
+            </form>
+
+            <div class="top-actions">
+                <a
+                    href="{% url 'notifications' %}"
+                    class="icon-btn position-relative"
+                    aria-label="View notifications"
+                >
+                    <i class="bi bi-bell" aria-hidden="true"></i>
+                    {% if unread_notifications %}
+                        <span class="notification-dot" aria-hidden="true"></span>
+                    {% endif %}
+                </a>
+
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'staff_profile' %}"
+                       class="user-chip text-decoration-none">
+                        <div class="avatar" aria-hidden="true">
+                            {{ request.user.username|first|upper }}
+                        </div>
+                        <div class="d-none d-md-block">
+                            <strong>
+                                {{ request.user.get_full_name|default:request.user.username }}
+                            </strong>
+                            <small>Staff account</small>
+                        </div>
+                    </a>
+
+                    <form method="post" action="{% url 'logout' %}" class="m-0">
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="btn btn-light btn-sm"
+                            title="Sign out"
+                            aria-label="Sign out"
+                        >
+                            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </header>
+
+        <section class="page-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div
+                        class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'debug' %}secondary{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show shadow-sm"
+                        role="alert"
+                    >
+                        {{ message }}
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Dismiss notification"
+                        ></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+(() => {
+    "use strict";
+
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const searchForm = document.querySelector(".search-box");
+    const searchInput = searchForm ? searchForm.querySelector("input[name='q']") : null;
+    const searchResults = document.getElementById("liveSearchResults");
+    let searchTimer;
+    let searchController;
+
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener("click", () => {
+            const collapsed = sidebar.classList.toggle("collapsed");
+            sidebarToggle.setAttribute("aria-expanded", String(!collapsed));
+        });
+    }
+
+    const clearSearchResults = () => {
+        if (searchResults) {
+            searchResults.replaceChildren();
+            searchResults.classList.remove("is-visible");
+        }
+    };
+
+    const showSearchResults = (results) => {
+        if (!searchResults) return;
+        searchResults.replaceChildren();
+        if (!results.length) {
+            const empty = document.createElement("div");
+            empty.className = "live-search-empty";
+            empty.textContent = "No matching records";
+            searchResults.appendChild(empty);
+        } else {
+            results.forEach((result) => {
+                const link = document.createElement("a");
+                link.className = "live-search-item";
+                link.href = result.href;
+                link.setAttribute("role", "option");
+                const title = document.createElement("strong");
+                title.textContent = result.title;
+                const meta = document.createElement("small");
+                meta.textContent = `${result.type} · ${result.meta || ""}`;
+                link.append(title, meta);
+                searchResults.appendChild(link);
+            });
+        }
+        searchResults.classList.add("is-visible");
+    };
+
+    if (searchForm && searchInput && searchResults) {
+        searchInput.addEventListener("input", () => {
+            window.clearTimeout(searchTimer);
+            if (searchController) searchController.abort();
+            const query = searchInput.value.trim();
+            if (query.length < 2) {
+                clearSearchResults();
+                return;
+            }
+            searchTimer = window.setTimeout(async () => {
+                searchController = new AbortController();
+                try {
+                    const endpoint = `${searchForm.action}?q=${encodeURIComponent(query)}&format=json`;
+                    const response = await fetch(endpoint, {
+                        headers: {"X-Requested-With": "XMLHttpRequest"},
+                        signal: searchController.signal,
+                    });
+                    if (!response.ok) throw new Error("Search request failed");
+                    const data = await response.json();
+                    if (searchInput.value.trim() === query) showSearchResults(data.results || []);
+                } catch (error) {
+                    if (error.name !== "AbortError") clearSearchResults();
+                }
+            }, 250);
+        });
+        searchInput.addEventListener("focus", () => {
+            if (searchInput.value.trim().length >= 2 && searchResults.children.length) {
+                searchResults.classList.add("is-visible");
+            }
+        });
+        document.addEventListener("click", (event) => {
+            if (!searchForm.contains(event.target)) clearSearchResults();
+        });
+    }
+
+})();
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

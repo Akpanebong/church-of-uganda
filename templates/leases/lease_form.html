@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {{ page_title|default:"Lease record" }} | Diocesan Estates
+{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">LEASE MANAGEMENT SYSTEM</span>
+        <h1>{{ page_title|default:"Lease record" }}</h1>
+        <p>
+            Select a unit to load its configured monthly rent and
+            service charge before saving the lease.
+        </p>
+    </div>
+</div>
+
+<div class="panel form-panel">
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Please review this lease:</strong>
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="required-mark"
+                                  aria-label="required">*</span>
+                        {% endif %}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <small class="field-help">
+                            {{ field.help_text }}
+                        </small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <small class="field-error" role="alert">
+                            {{ error }}
+                        </small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="unit-summary"
+             class="alert alert-info mt-4 d-none"
+             role="status"
+             aria-live="polite"></div>
+
+        <div id="unit-error"
+             class="alert alert-danger mt-3 d-none"
+             role="alert"></div>
+
+        <div class="form-actions">
+            <a class="btn btn-light border"
+               href="{% url 'lease_list' %}">
+                <i class="bi bi-arrow-left me-1"
+                   aria-hidden="true"></i>
+                Cancel
+            </a>
+
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-check2 me-1"
+                   aria-hidden="true"></i>
+                Save lease and create invoice
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+    "use strict";
+
+    const unit = document.getElementById("id_unit");
+    const rent = document.getElementById("id_rent");
+    const charge = document.getElementById("id_service_charge");
+    const summary = document.getElementById("unit-summary");
+    const errorBox = document.getElementById("unit-error");
+
+    if (!unit || !summary || !errorBox) return;
+
+    let requestController = null;
+
+    function showError(message) {
+        errorBox.textContent = message;
+        errorBox.classList.remove("d-none");
+    }
+
+    function clearMessages() {
+        summary.textContent = "";
+        summary.classList.add("d-none");
+
+        errorBox.textContent = "";
+        errorBox.classList.add("d-none");
+    }
+
+    async function loadUnitDetails() {
+        clearMessages();
+
+        if (!unit.value) {
+            return;
+        }
+
+        if (!rent || !charge) {
+            showError(
+                "The rent or service charge field could not be found. " +
+                "Please refresh the page or contact the system administrator."
+            );
+            return;
+        }
+
+        if (requestController) {
+            requestController.abort();
+        }
+
+        requestController = new AbortController();
+
+        const selectedUnit = unit.value;
+        unit.setAttribute("aria-busy", "true");
+
+        try {
+            const response = await fetch(
+                `/leases/units/${encodeURIComponent(selectedUnit)}/details/`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    },
+                    credentials: "same-origin",
+                    signal: requestController.signal
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    response.status === 404
+                        ? "Unit details were not found."
+                        : "Unable to load the selected unit details."
+                );
+            }
+
+            const data = await response.json();
+
+            if (unit.value !== selectedUnit) {
+                return;
+            }
+
+            if (
+                data.monthly_rent === undefined ||
+                data.service_charge === undefined
+            ) {
+                throw new Error(
+                    "The server returned incomplete rent information."
+                );
+            }
+
+            rent.value = data.monthly_rent;
+            charge.value = data.service_charge;
+
+            const property = document.createElement("strong");
+            property.textContent = data.property || "Selected property";
+
+            const details = document.createElement("span");
+            details.textContent =
+                ` — Unit ${data.unit_number ?? selectedUnit}. ` +
+                "Configured monthly rent and service charge loaded. " +
+                "Please verify the amounts before saving.";
+
+            summary.replaceChildren(property, details);
+            summary.classList.remove("d-none");
+
+        } catch (error) {
+            if (error.name === "AbortError") {
+                return;
+            }
+
+            showError(
+                error.message ||
+                "An unexpected error occurred while loading unit details."
+            );
+        } finally {
+            if (unit.value === selectedUnit) {
+                unit.removeAttribute("aria-busy");
+            }
+        }
+    }
+
+    unit.addEventListener("change", loadUnitDetails);
+
+    if (unit.value) {
+        loadUnitDetails();
+    }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+from django.urls import path
+from .views import *
+urlpatterns=[
+    path("",operations,name="operations"),
+    path("inspections/", inspection_register, name="inspection_register"),
+    path("projects/", project_register, name="project_register"),
+    path("disputes/", dispute_register, name="dispute_register"),
+    path("risks/", risk_register, name="risk_register"),
+    path("compliance/", compliance_register, name="compliance_register"),
+    path("assets/", asset_register, name="asset_register"), path("assets/<int:pk>/", asset_detail, name="asset_detail"), path("assets/<int:pk>/trash/", asset_trash, name="asset_trash"), path("assets/<int:pk>/edit/", asset_update, name="asset_update"),
+    path("contractors/", contractor_register, name="contractor_register"), path("contractors/<int:pk>/", contractor_detail, name="contractor_detail"), path("contractors/<int:pk>/trash/", contractor_trash, name="contractor_trash"), path("contractors/<int:pk>/edit/", contractor_update, name="contractor_update"),
+    path("visitors/", visitor_register, name="visitor_register"), path("visitors/<int:pk>/", visitor_detail, name="visitor_detail"), path("visitors/<int:pk>/trash/", visitor_trash, name="visitor_trash"), path("visitors/<int:pk>/edit/", visitor_update, name="visitor_update"), path("parking/", parking_register, name="parking_register"),
+    path("meters/", meter_register, name="meter_register"), path("readings/", reading_register, name="reading_register"),
+    path("inspections/new/", inspection_create, name="inspection_create"), path("inspections/<int:pk>/edit/", inspection_update, name="inspection_update"), path("inspections/<int:pk>/delete/", inspection_delete, name="inspection_delete"),
+    path("meters/new/", utility_meter_create, name="utility_meter_create"), path("meters/<int:pk>/edit/", utility_meter_update, name="utility_meter_update"), path("meters/<int:pk>/delete/", utility_meter_delete, name="utility_meter_delete"),
+    path("readings/new/", meter_reading_create, name="meter_reading_create"), path("readings/<int:pk>/edit/", meter_reading_update, name="meter_reading_update"), path("readings/<int:pk>/delete/", meter_reading_delete, name="meter_reading_delete"),
+    path("assets/new/", asset_create, name="asset_create"), path("assets/<int:pk>/delete/", asset_delete, name="asset_delete"),
+    path("contractors/new/", contractor_create, name="contractor_create"), path("contractors/<int:pk>/delete/", contractor_delete, name="contractor_delete"),
+    path("visitors/new/", visitor_create, name="visitor_create"), path("visitors/<int:pk>/delete/", visitor_delete, name="visitor_delete"),
+    path("parking/new/", parking_space_create, name="parking_space_create"), path("parking/<int:pk>/edit/", parking_space_update, name="parking_space_update"), path("parking/<int:pk>/delete/", parking_space_delete, name="parking_space_delete"),
+    path("compliance/new/", compliance_create, name="compliance_create"), path("compliance/<int:pk>/edit/", compliance_update, name="compliance_update"), path("compliance/<int:pk>/delete/", compliance_delete, name="compliance_delete"),
+    path("projects/new/", project_create, name="project_create"), path("projects/<int:pk>/edit/", project_update, name="project_update"), path("projects/<int:pk>/delete/", project_delete, name="project_delete"),
+    path("disputes/new/", dispute_create, name="dispute_create"), path("disputes/<int:pk>/edit/", dispute_update, name="dispute_update"), path("disputes/<int:pk>/delete/", dispute_delete, name="dispute_delete"),
+    path("risks/new/", risk_create, name="risk_create"), path("risks/<int:pk>/edit/", risk_update, name="risk_update"), path("risks/<int:pk>/delete/", risk_delete, name="risk_delete"),
+]

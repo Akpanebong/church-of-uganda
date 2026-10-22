@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Diocese Profile | EstatePro{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">GOVERNANCE SETTINGS</span>
+        <h1>Diocese Profile</h1>
+        <p>Maintain the diocese's institutional identity, official address and governance review dates.</p>
+    </div>
+</div>
+
+<div class="panel form-panel">
+    <div class="panel-header">
+        <div>
+            <h3>Institutional information</h3>
+            <p class="text-muted mb-0">Keep official diocesan records accurate and up to date.</p>
+        </div>
+        <i class="bi bi-building-check fs-4" aria-hidden="true"></i>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% if form.errors %}
+            <div class="alert alert-warning" role="status">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Please review the highlighted fields before saving.
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="form-field {% if field.errors %}has-error{% endif %}">
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <div class="form-check">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="text-danger" aria-hidden="true">*</span>
+                                {% endif %}
+                            </label>
+                        </div>
+                    {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}
+                                <span class="text-danger" aria-hidden="true">*</span>
+                            {% endif %}
+                        </label>
+
+                        {{ field }}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <small class="form-help">{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <small class="text-danger d-block mt-1">
+                            <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                        </small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'dashboard' %}" class="btn btn-light">
+                <i class="bi bi-arrow-left me-1"></i>
+                Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2-circle me-1"></i>
+                Save diocesan profile
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

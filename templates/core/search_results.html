@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">GLOBAL SEARCH</span>
+        <h1>Search results</h1>
+        <p>{% if query %}Matches for “{{ query }}”.{% else %}Search across the estate registers.{% endif %}</p>
+    </div>
+</div>
+
+<div class="panel">
+    {% if not query %}
+        <div class="empty py-5">Enter a search term in the top bar.</div>
+    {% elif results %}
+        <div class="list-group list-group-flush">
+            {% for result in results %}
+                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                   href="{% url result.url result.pk %}">
+                    <span>
+                        <strong>{{ result.title }}</strong>
+                        <small class="d-block text-muted">{{ result.type }} · {{ result.meta }}</small>
+                    </span>
+                    <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty py-5">No records matched “{{ query }}”.</div>
+    {% endif %}
+</div>
+{% endblock %}

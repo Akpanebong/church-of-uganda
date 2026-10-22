@@ -1,0 +1,729 @@
+
+{% extends "base.html" %}
+
+{% block title %}Estates Command Centre | {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">DIOCESE OF MADI WEST NILE</span>
+        <h1>Estates command centre</h1>
+        <p>
+            Portfolio intelligence, financial stewardship, property operations
+            and institutional risk oversight.
+        </p>
+        <small class="text-muted">
+            Reporting date: {{ today|date:"d F Y" }}
+        </small>
+    </div>
+
+    <div class="page-heading-actions d-flex flex-wrap gap-2">
+        <a href="{% url 'property_list' %}" class="btn btn-primary">
+            <i class="bi bi-buildings me-1" aria-hidden="true"></i>
+            Property register
+        </a>
+        <a href="{% url 'finance_d' %}" class="btn btn-outline-primary">
+            <i class="bi bi-cash-stack me-1" aria-hidden="true"></i>
+            Finance
+        </a>
+    </div>
+</div>
+
+{# 1. Executive KPIs #}
+<section class="kpi-grid" aria-label="Executive portfolio indicators">
+    <article class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-buildings" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Properties</span>
+            <strong>{{ properties_count }}</strong>
+            <small>{{ active_properties }} active properties</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-door-open" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Occupancy</span>
+            <strong>{{ occupancy_rate }}%</strong>
+            <small>{{ occupied_units }} of {{ units_count }} units occupied</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-people" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Active tenants</span>
+            <strong>{{ tenants_count }}</strong>
+            <small>{{ vacant_units }} available units</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon warning">
+            <i class="bi bi-wallet2" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Receivables</span>
+            <strong>UGX {{ outstanding|floatformat:0 }}</strong>
+            <small>{{ outstanding_invoices_count }} unpaid or partial invoices</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon warning">
+            <i class="bi bi-calendar-x" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Overdue debt</span>
+            <strong>UGX {{ overdue_balance|floatformat:0 }}</strong>
+            <small>{{ overdue_invoices_count }} overdue invoices</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-kanban" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Development projects</span>
+            <strong>{{ active_projects }}</strong>
+            <small>{{ over_budget_projects }} over budget</small>
+        </div>
+    </article>
+</section>
+
+{# 2. Finance and property utilisation #}
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-8">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Financial performance</h3>
+                    <small>Current month, {{ today|date:"F Y" }}</small>
+                </div>
+                <span class="status-pill">
+                    Monthly summary
+                </span>
+            </div>
+
+            <div class="row g-3 p-3">
+                <div class="col-12 col-md-6">
+                    <div class="metric-card">
+                        <span>Collections received</span>
+                        <h4>UGX {{ monthly_collections|floatformat:0 }}</h4>
+                        <small>Payments recorded this month</small>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="metric-card">
+                        <span>Operating expenditure</span>
+                        <h4>UGX {{ monthly_expenses|floatformat:0 }}</h4>
+                        <small>Expenses recorded this month</small>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="metric-card">
+                        <span>Net recorded cash movement</span>
+                        <h4>UGX {{ monthly_net_cashflow|floatformat:0 }}</h4>
+                        <small>Collections less recorded expenses</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-3 pb-3">
+                <div class="metric-row">
+                    <span>Outstanding receivables</span>
+                    <strong>UGX {{ outstanding|floatformat:0 }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Overdue receivables</span>
+                    <strong>UGX {{ overdue_balance|floatformat:0 }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Active leases</span>
+                    <strong>{{ active_leases }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Leases expiring within 30 days</span>
+                    <strong>{{ leases_expiring }}</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Unit utilisation</h3>
+                    <small>Current unit status distribution</small>
+                </div>
+            </div>
+
+            <div class="p-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Occupied</span>
+                    <strong>{{ occupied_units }}</strong>
+                </div>
+                <div class="progress mb-3" role="progressbar"
+                     aria-label="Occupied units"
+                     aria-valuenow="{{ occupancy_rate }}"
+                     aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar bg-success"
+                         style="width: {{ occupancy_rate }}%"></div>
+                </div>
+
+                <div class="metric-row">
+                    <span><i class="bi bi-check-circle me-1" aria-hidden="true"></i>Available</span>
+                    <strong>{{ vacant_units }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span><i class="bi bi-bookmark me-1" aria-hidden="true"></i>Reserved</span>
+                    <strong>{{ reserved_units }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span><i class="bi bi-tools me-1" aria-hidden="true"></i>Under maintenance</span>
+                    <strong>{{ maintenance_units }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span><i class="bi bi-grid me-1" aria-hidden="true"></i>Total units</span>
+                    <strong>{{ units_count }}</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+{# 3. Governance and risk #}
+<div class="row g-4 mt-1">
+    <div class="col-12">
+        <section class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>Governance and risk oversight</h3>
+                    <small>Issues requiring management attention</small>
+                </div>
+                <span class="status-pill warning">
+                    Priority monitoring
+                </span>
+            </div>
+
+            <div class="kpi-grid p-3">
+                <article class="kpi">
+                    <div class="kpi-icon warning">
+                        <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span>High / critical risks</span>
+                        <strong>{{ critical_risks }}</strong>
+                        <small>{{ risks_due }} risk reviews due within 30 days</small>
+                    </div>
+                </article>
+
+                <article class="kpi">
+                    <div class="kpi-icon warning">
+                        <i class="bi bi-bank" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span>Open land disputes</span>
+                        <strong>{{ open_disputes }}</strong>
+                        <small>Unresolved matters</small>
+                    </div>
+                </article>
+
+                <article class="kpi">
+                    <div class="kpi-icon warning">
+                        <i class="bi bi-file-earmark-x" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span>Expired compliance</span>
+                        <strong>{{ expired_compliance }}</strong>
+                        <small>Records past expiry date</small>
+                    </div>
+                </article>
+
+                <article class="kpi">
+                    <div class="kpi-icon">
+                        <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span>Compliance expiring</span>
+                        <strong>{{ expiring_compliance }}</strong>
+                        <small>Due within 30 days</small>
+                    </div>
+                </article>
+
+                <article class="kpi">
+                    <div class="kpi-icon warning">
+                        <i class="bi bi-file-earmark-lock" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span>Missing title references</span>
+                        <strong>{{ missing_title_references }}</strong>
+                        <small>Properties without a recorded title reference</small>
+                    </div>
+                </article>
+
+                <article class="kpi">
+                    <div class="kpi-icon">
+                        <i class="bi bi-bell" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <span>Unread notifications</span>
+                        <strong>{{ unread_notifications_count }}</strong>
+                        <small>For your account</small>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+</div>
+
+{# 4. Operational performance #}
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Maintenance control</h3>
+                    <small>Outstanding work orders</small>
+                </div>
+                <a href="{% url 'maintenance_list' %}">View all</a>
+            </div>
+
+            <div class="p-3">
+                <div class="metric-row">
+                    <span>Open requests</span>
+                    <strong>{{ open_maintenance }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>High / urgent priority</span>
+                    <strong>{{ urgent_maintenance }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Estimated outstanding cost</span>
+                    <strong>UGX {{ maintenance_estimated_cost|floatformat:0 }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Recorded actual cost</span>
+                    <strong>UGX {{ maintenance_actual_cost|floatformat:0 }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Inspections scheduled in 30 days</span>
+                    <strong>{{ inspections_due }}</strong>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table enterprise-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Request</th>
+                            <th scope="col">Property / unit</th>
+                            <th scope="col">Priority</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in recent_maintenance %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.request_number }}</strong>
+                                    <small class="d-block text-muted">
+                                        {{ item.category }}
+                                    </small>
+                                </td>
+                                <td>
+                                    {{ item.unit.property.name }}
+                                    <small class="d-block text-muted">
+                                        Unit {{ item.unit.unit_number }}
+                                    </small>
+                                </td>
+                                <td>{{ item.get_priority_display }}</td>
+                                <td>{{ item.get_status_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="empty py-4 text-center">
+                                    No outstanding maintenance requests.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Development portfolio</h3>
+                    <small>Approved and active projects</small>
+                </div>
+            </div>
+
+            <div class="p-3">
+                <div class="metric-row">
+                    <span>Approved / active projects</span>
+                    <strong>{{ active_projects }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Projects exceeding budget</span>
+                    <strong>{{ over_budget_projects }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Approved project budgets</span>
+                    <strong>UGX {{ total_project_budget|floatformat:0 }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Recorded project expenditure</span>
+                    <strong>UGX {{ total_project_spend|floatformat:0 }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Registered assets</span>
+                    <strong>{{ assets_count }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Assets needing attention</span>
+                    <strong>{{ assets_needing_attention }}</strong>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table enterprise-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Project</th>
+                            <th scope="col">Property</th>
+                            <th scope="col">Target date</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in recent_projects %}
+                            <tr>
+                                <td>
+                                    <strong>{{ project.name }}</strong>
+                                    <small class="d-block text-muted">
+                                        {{ project.project_code }}
+                                    </small>
+                                </td>
+                                <td>{{ project.property.name }}</td>
+                                <td>
+                                    {% if project.target_date %}
+                                        {{ project.target_date|date:"d M Y" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>{{ project.get_status_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="empty py-4 text-center">
+                                    No active development projects.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+{# 5. Collections and arrears #}
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-7">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Recent collections</h3>
+                    <small>Latest recorded tenant payments</small>
+                </div>
+                <a href="{% url 'finance_d' %}">View finance</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table enterprise-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Receipt</th>
+                            <th scope="col">Tenant</th>
+                            <th scope="col">Method</th>
+                            <th scope="col">Date</th>
+                            <th scope="col" class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in recent_payments %}
+                            <tr>
+                                <td>
+                                    <strong>{{ payment.receipt_number }}</strong>
+                                </td>
+                                <td>{{ payment.tenant.full_name }}</td>
+                                <td>{{ payment.get_method_display }}</td>
+                                <td>{{ payment.payment_date|date:"d M Y" }}</td>
+                                <td class="text-end fw-bold text-nowrap">
+                                    UGX {{ payment.amount|floatformat:0 }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty py-4 text-center">
+                                    No payment records found.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12 col-xl-5">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Overdue invoices</h3>
+                    <small>Invoices past their due date with a remaining balance</small>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table enterprise-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Invoice / tenant</th>
+                            <th scope="col">Due date</th>
+                            <th scope="col" class="text-end">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in recent_overdue_invoices %}
+                            <tr>
+                                <td>
+                                    <strong>{{ invoice.invoice_number }}</strong>
+                                    <small class="d-block text-muted">
+                                        {{ invoice.tenant.full_name }}
+                                    </small>
+                                </td>
+                                <td>{{ invoice.due_date|date:"d M Y" }}</td>
+                                <td class="text-end fw-bold text-nowrap">
+                                    UGX {{ invoice.balance|floatformat:0 }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="empty py-4 text-center">
+                                    No overdue invoices.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+{# 6. Land and compliance action queues #}
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Land dispute register</h3>
+                    <small>Unresolved property matters</small>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table enterprise-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Reference</th>
+                            <th scope="col">Property</th>
+                            <th scope="col">Next action</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dispute in recent_disputes %}
+                            <tr>
+                                <td><strong>{{ dispute.reference }}</strong></td>
+                                <td>{{ dispute.property.name }}</td>
+                                <td>
+                                    {% if dispute.next_action_date %}
+                                        {{ dispute.next_action_date|date:"d M Y" }}
+                                    {% else %}
+                                        Not scheduled
+                                    {% endif %}
+                                </td>
+                                <td>{{ dispute.get_status_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="empty py-4 text-center">
+                                    No unresolved land disputes.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Compliance deadlines</h3>
+                    <small>Expired and upcoming compliance records</small>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table enterprise-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Requirement</th>
+                            <th scope="col">Property</th>
+                            <th scope="col">Expiry</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in recent_compliance %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.title }}</strong>
+                                    {% if item.reference %}
+                                        <small class="d-block text-muted">
+                                            {{ item.reference }}
+                                        </small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.property.name }}</td>
+                                <td>
+                                    {% if item.expiry_date %}
+                                        {{ item.expiry_date|date:"d M Y" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.status }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="empty py-4 text-center">
+                                    No upcoming compliance deadlines.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+{# 7. Institutional records and audit trail #}
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-4">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Estate documentation</h3>
+                    <small>Document control</small>
+                </div>
+            </div>
+
+            <div class="p-3">
+                <div class="metric-row">
+                    <span>Registered documents</span>
+                    <strong>{{ documents_count }}</strong>
+                </div>
+                <div class="metric-row">
+                    <span>Confidential documents</span>
+                    <strong>{{ confidential_documents }}</strong>
+                </div>
+            </div>
+            <p class="text-muted small px-3 pb-2 mb-0">
+                Access to confidential records should be restricted by
+                application permissions.
+            </p>
+        </section>
+    </div>
+
+    <div class="col-12 col-xl-8">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3>Recent audit activity</h3>
+                    <small>Latest recorded system events</small>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table enterprise-table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Timestamp</th>
+                            <th scope="col">User</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Record</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_audit_logs %}
+                            <tr>
+                                <td class="text-nowrap">
+                                    {{ log.created_at|date:"d M Y H:i" }}
+                                </td>
+                                <td>
+                                    {% if log.user %}
+                                        {{ log.user.get_username }}
+                                    {% else %}
+                                        System / deleted user
+                                    {% endif %}
+                                </td>
+                                <td>{{ log.action }}</td>
+                                <td>
+                                    {{ log.model_name }}
+                                    {% if log.object_id %}
+                                        <small class="d-block text-muted">
+                                            #{{ log.object_id }}
+                                        </small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ log.description|default:"—"|truncatechars:70 }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty py-4 text-center">
+                                    No audit events have been recorded.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

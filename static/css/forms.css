@@ -1,0 +1,435 @@
+
+/* =========================================================
+   DIOCESAN ESTATES — FORM DESIGN SYSTEM
+   Brand palette inherited from estate.css:
+   Navy:   #35164f
+   Purple: #6f2d82
+   Gold:   #c9a227
+   ========================================================= */
+
+:root {
+    --form-control-height: 44px;
+    --form-control-radius: 9px;
+    --form-focus-ring: 0 0 0 3px rgba(111, 45, 130, .12);
+    --form-invalid-ring: 0 0 0 3px rgba(195, 59, 75, .12);
+    --form-control-bg: #fff;
+    --form-control-disabled-bg: #f5f1f7;
+    --form-label-color: var(--text);
+    --form-help-color: var(--muted);
+    --form-error-color: #b42332;
+    --form-success-color: #137454;
+}
+
+/* =========================================================
+   FORM CONTAINERS
+   ========================================================= */
+
+.form-panel {
+    width: 100%;
+    max-width: 1100px;
+}
+
+.narrow-panel {
+    max-width: 620px;
+}
+
+.page-auth-card {
+    width: min(760px, 100%);
+    max-width: 760px;
+    margin-inline: auto;
+}
+
+/* =========================================================
+   FORM GRIDS
+   ========================================================= */
+
+.form-grid,
+.staff-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 18px;
+}
+
+.form-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-field-wide,
+.staff-form-grid .field-full {
+    grid-column: 1 / -1;
+}
+
+.form-field > label {
+    margin: 0;
+    color: var(--form-label-color);
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.45;
+}
+
+.required-mark {
+    margin-left: 3px;
+    color: var(--form-error-color);
+}
+
+/* =========================================================
+   TEXT INPUTS, SELECTS AND TEXTAREAS
+   ========================================================= */
+
+.form-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+.form-field select,
+.form-field textarea,
+.form-field .form-control,
+.form-field .form-select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: var(--form-control-height);
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--form-control-radius);
+    color: var(--text);
+    background-color: var(--form-control-bg);
+    box-shadow: none;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.45;
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background-color .18s ease;
+}
+
+.form-field textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-field select,
+.form-field .form-select {
+    cursor: pointer;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+    color: #a397aa;
+    opacity: 1;
+}
+
+.form-field input:hover:not(:disabled),
+.form-field select:hover:not(:disabled),
+.form-field textarea:hover:not(:disabled) {
+    border-color: #c9b4d4;
+}
+
+/* Keep Bootstrap and native focus states consistent. */
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus,
+.form-field .form-control:focus,
+.form-field .form-select:focus {
+    border-color: var(--purple);
+    outline: 0;
+    box-shadow: var(--form-focus-ring);
+}
+
+/* =========================================================
+   FILE INPUTS
+   ========================================================= */
+
+.form-field input[type="file"] {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-height: var(--form-control-height);
+    padding: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--form-control-radius);
+    color: var(--text);
+    background: var(--form-control-bg);
+    font-size: 12px;
+}
+
+.form-field input[type="file"]:focus {
+    border-color: var(--purple);
+    outline: 0;
+    box-shadow: var(--form-focus-ring);
+}
+
+.form-field input[type="file"]::file-selector-button {
+    margin: -2px 10px -2px -2px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 6px;
+    color: var(--navy);
+    background: #f1e7f5;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.form-field input[type="file"]::file-selector-button:hover {
+    color: #fff;
+    background: var(--purple);
+}
+
+/* =========================================================
+   DISABLED AND READ-ONLY CONTROLS
+   ========================================================= */
+
+.form-field input:disabled,
+.form-field select:disabled,
+.form-field textarea:disabled,
+.form-field .form-control:disabled,
+.form-field .form-select:disabled {
+    cursor: not-allowed;
+    color: #817589;
+    background: var(--form-control-disabled-bg);
+    opacity: 1;
+}
+
+.form-field input[readonly],
+.form-field textarea[readonly],
+.form-field .form-control[readonly] {
+    background: #faf8fc;
+}
+
+/* =========================================================
+   CHECKBOXES AND RADIO BUTTONS
+   ========================================================= */
+
+.form-field input[type="checkbox"],
+.form-field input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    flex: 0 0 auto;
+    accent-color: var(--purple);
+}
+
+.form-field .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 28px;
+    padding-left: 0;
+}
+
+.form-field .form-check label {
+    margin: 0;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.form-field .form-check-input {
+    float: none;
+    margin: 0;
+    flex: 0 0 auto;
+    border-color: #c9bcd0;
+    cursor: pointer;
+}
+
+.form-field .form-check-input:checked {
+    border-color: var(--purple);
+    background-color: var(--purple);
+}
+
+.form-field .form-check-input:focus {
+    border-color: var(--purple);
+    box-shadow: var(--form-focus-ring);
+}
+
+.form-field .form-check-input[type="checkbox"] {
+    border-radius: 4px;
+}
+
+.form-field .form-check-input[type="radio"] {
+    border-radius: 50%;
+}
+
+.form-field .form-check-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 14px 8px 0;
+}
+
+.form-field .form-check-inline .form-check-input {
+    margin: 0;
+}
+
+/* =========================================================
+   FIELD HELP AND VALIDATION
+   ========================================================= */
+
+.field-help,
+.form-field .helptext {
+    color: var(--form-help-color);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.field-error,
+.form-field .errorlist {
+    margin: 0;
+    padding: 0;
+    color: var(--form-error-color);
+    font-size: 11px;
+    line-height: 1.45;
+    list-style: none;
+}
+
+.form-field .errorlist li + li {
+    margin-top: 3px;
+}
+
+.form-field ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.form-field .is-invalid,
+.form-field input[aria-invalid="true"],
+.form-field select[aria-invalid="true"],
+.form-field textarea[aria-invalid="true"] {
+    border-color: #c33b4b;
+}
+
+.form-field .is-invalid:focus,
+.form-field input[aria-invalid="true"]:focus,
+.form-field select[aria-invalid="true"]:focus,
+.form-field textarea[aria-invalid="true"]:focus {
+    border-color: #c33b4b;
+    box-shadow: var(--form-invalid-ring);
+}
+
+.form-field .is-valid,
+.form-field input[aria-invalid="false"],
+.form-field select[aria-invalid="false"],
+.form-field textarea[aria-invalid="false"] {
+    border-color: var(--form-success-color);
+}
+
+/* =========================================================
+   FORM ACTIONS
+   ========================================================= */
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 27px;
+    padding-top: 19px;
+    border-top: 1px solid var(--border);
+}
+
+.form-actions .btn {
+    min-height: 40px;
+    padding: 9px 16px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+/* Keep primary actions aligned with the brand palette. */
+.form-actions .btn-primary {
+    border-color: var(--purple);
+    color: #fff;
+    background: var(--purple);
+    box-shadow: 0 4px 12px rgba(111, 45, 130, .12);
+}
+
+.form-actions .btn-primary:hover,
+.form-actions .btn-primary:focus-visible {
+    border-color: var(--navy);
+    color: #fff;
+    background: var(--navy);
+}
+
+.form-actions .btn-outline-secondary {
+    border-color: var(--border);
+    color: var(--text);
+    background: #fff;
+}
+
+.form-actions .btn-outline-secondary:hover {
+    border-color: #c9b4d4;
+    color: var(--navy);
+    background: #f5eff8;
+}
+
+/* =========================================================
+   NAVIGATION SUBMENU
+   ========================================================= */
+
+.nav-sub {
+    padding: 2px 0 7px 45px;
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUT
+   ========================================================= */
+
+@media (max-width: 700px) {
+    .form-grid,
+    .staff-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 17px;
+    }
+
+    .form-field-wide,
+    .staff-form-grid .field-full {
+        grid-column: auto;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+    }
+
+    .form-actions .btn {
+        flex: 1 1 auto;
+    }
+}
+
+@media (max-width: 420px) {
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    .form-panel,
+    .narrow-panel,
+    .page-auth-card {
+        min-width: 0;
+    }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .form-field input,
+    .form-field select,
+    .form-field textarea,
+    .form-field .form-control,
+    .form-field .form-select,
+    .form-actions .btn {
+        transition: none;
+    }
+}

@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Control Centre | {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">DIOCESAN ESTATES DEPARTMENT</span>
+        <h1>Financial control centre</h1>
+        <p>
+            Billing, rental collections, expenditure and financial accountability
+            across the property portfolio.
+        </p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'expense_create' %}" class="btn btn-light">
+            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+            Add expense
+        </a>
+        <a href="{% url 'payment_create' %}" class="btn btn-light">
+            <i class="bi bi-cash-coin me-1" aria-hidden="true"></i>
+            Record payment
+        </a>
+        <a href="{% url 'invoice_create' %}" class="btn btn-primary">
+            <i class="bi bi-receipt me-1" aria-hidden="true"></i>
+            Create invoice
+        </a>
+    </div>
+</div>
+
+{# Financial overview #}
+<section class="kpi-grid" aria-label="Financial summary">
+    <article class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-receipt" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Total billed</span>
+            <strong>UGX {{ total_billed|default:0|floatformat:0 }}</strong>
+            <small>Invoices issued</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-check2-circle" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Total collected</span>
+            <strong>UGX {{ total_collected|default:0|floatformat:0 }}</strong>
+            <small>Recorded payments</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon warning">
+            <i class="bi bi-wallet2" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Outstanding balance</span>
+            <strong>
+                UGX {{ outstanding|default:0|floatformat:0 }}
+            </strong>
+            <small>Unpaid invoice balances</small>
+        </div>
+    </article>
+
+    <article class="kpi">
+        <div class="kpi-icon warning">
+            <i class="bi bi-graph-down-arrow" aria-hidden="true"></i>
+        </div>
+        <div>
+            <span>Total expenses</span>
+            <strong>UGX {{ expenses|default:0|floatformat:0 }}</strong>
+            <small>Recorded expenditure</small>
+        </div>
+    </article>
+</section>
+
+{# Invoice register #}
+<section class="panel mt-4">
+    <div class="panel-header">
+        <div>
+            <h3>Invoice register</h3>
+            <small>Billing records, settlements and outstanding balances</small>
+        </div>
+        {% if request.user.username == 'j' %}
+        <a href="{% url 'invoice_create' %}" class="btn btn-sm btn-light btn-primary">
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
+            New invoice
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="table enterprise-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Invoice</th>
+                    <th scope="col">Tenant</th>
+                    <th scope="col">Issue date</th>
+                    <th scope="col">Due date</th>
+                    <th scope="col" class="text-end">Amount</th>
+                    <th scope="col" class="text-end">Paid</th>
+                    <th scope="col" class="text-end">Balance</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td>
+                            <strong>{{ invoice.invoice_number }}</strong>
+                            <small class="d-block text-muted">
+                                {{ invoice.description|truncatechars:38 }}
+                            </small>
+                        </td>
+
+                        <td>{{ invoice.tenant.full_name }}</td>
+
+                        <td class="text-nowrap">
+                            {{ invoice.issue_date|date:"d M Y" }}
+                        </td>
+
+                        <td class="text-nowrap">
+                            {{ invoice.due_date|date:"d M Y" }}
+                        </td>
+
+                        <td class="text-end text-nowrap">
+                            UGX {{ invoice.amount|floatformat:0 }}
+                        </td>
+
+                        <td class="text-end text-nowrap">
+                            UGX {{ invoice.paid_amount|floatformat:0 }}
+                        </td>
+
+                        <td class="text-end text-nowrap fw-bold">
+                            UGX {{ invoice.balance|floatformat:0 }}
+                        </td>
+
+                        <td>
+                            {% if invoice.status == "paid" %}
+                                <span class="status-pill success">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            {% elif invoice.status == "overdue" or invoice.due_date < today and invoice.balance > 0 and invoice.status != "cancelled" %}
+                                <span class="status-pill danger">
+                                    Overdue
+                                </span>
+                            {% elif invoice.status == "partial" %}
+                                <span class="status-pill warning">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            {% elif invoice.status == "cancelled" %}
+                                <span class="status-pill">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            {% else %}
+                                <span class="status-pill">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-end text-nowrap">
+                            <a href="{% url 'invoice_update' invoice.pk %}"
+                               class="btn btn-sm btn-light"
+                               aria-label="Edit invoice {{ invoice.invoice_number }}">
+                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                Edit
+                            </a>
+                            <a href="{% url 'invoice_delete' invoice.pk %}"
+                               class="btn btn-sm btn-outline-danger ms-1"
+                               aria-label="Delete invoice {{ invoice.invoice_number }}">
+                                <i class="bi bi-trash" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="9" class="empty py-5 text-center">
+                            <i class="bi bi-receipt d-block fs-3 mb-2"
+                               aria-hidden="true"></i>
+                            <strong>No invoices recorded</strong>
+                            <p class="mb-3">Create an invoice to start tracking property revenue.</p>
+                            <a href="{% url 'invoice_create' %}"
+                               class="btn btn-light btn-primary btn-sm">
+                                Create first invoice
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{# Payment register #}
+<section class="panel mt-4">
+    <div class="panel-header">
+        <div>
+            <h3>Payment register</h3>
+            <small>Recent receipts and collection transactions</small>
+        </div>
+        <a href="{% url 'payment_create' %}" class="btn btn-sm btn-light btn-primary">
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
+            Record payment
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table enterprise-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Receipt</th>
+                    <th scope="col">Tenant</th>
+                    <th scope="col">Invoice</th>
+                    <th scope="col">Payment method</th>
+                    <th scope="col">Payment date</th>
+                    <th scope="col" class="text-end">Amount</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for payment in payments %}
+                    <tr>
+                        <td>
+                            <strong>{{ payment.receipt_number }}</strong>
+                            {% if payment.reference %}
+                                <small class="d-block text-muted">
+                                    Ref: {{ payment.reference }}
+                                </small>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ payment.tenant.full_name }}</td>
+
+                        <td>
+                            {% if payment.invoice %}
+                                {{ payment.invoice.invoice_number }}
+                            {% else %}
+                                <span class="text-muted">Unallocated</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ payment.get_method_display }}</td>
+
+                        <td class="text-nowrap">
+                            {{ payment.payment_date|date:"d M Y" }}
+                        </td>
+
+                        <td class="text-end text-nowrap fw-bold">
+                            UGX {{ payment.amount|floatformat:0 }}
+                        </td>
+
+                        <td class="text-end text-nowrap">
+                            <a href="{% url 'payment_update' payment.pk %}"
+                               class="btn btn-sm btn-light"
+                               aria-label="Edit receipt {{ payment.receipt_number }}">
+                                <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                Edit
+                            </a>
+                            <a href="{% url 'payment_delete' payment.pk %}"
+                               class="btn btn-sm btn-outline-danger ms-1"
+                               aria-label="Delete receipt {{ payment.receipt_number }}">
+                                <i class="bi bi-trash" aria-hidden="true"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="empty py-5 text-center">
+                            <i class="bi bi-cash-stack d-block fs-3 mb-2"
+                               aria-hidden="true"></i>
+                            <strong>No payments recorded</strong>
+                            <p class="mb-3">Recorded receipts will appear here.</p>
+                            {% if request.user.username == 'j' %}
+                                <a href="{% url 'payment_create' %}"
+                                   class="btn btn-light btn-primary btn-sm">
+                                    Record first payment
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

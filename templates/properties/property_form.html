@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title|default:"Save record" }} | Diocesan Estates{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">ESTATES CONTROL</span>
+        <h1>{{ page_title|default:"Save record" }}</h1>
+        <p>Complete the fields below, then save the official register entry.</p>
+    </div>
+</div>
+
+<div class="panel form-panel">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                <div class="fw-semibold mb-1">Please review the following:</div>
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="form-field{% if field.field.widget.input_type == 'hidden' %} visually-hidden{% endif %}{% if field.field.widget.attrs.form_field_wide %} form-field-wide{% endif %}">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}<span class="required-mark" aria-label="required">*</span>{% endif %}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <small class="field-help">{{ field.help_text|safe }}</small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <small class="field-error" role="alert">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-light border" type="button" onclick="history.back()">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Cancel
+            </button>
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-check2 me-1" aria-hidden="true"></i>Save record
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

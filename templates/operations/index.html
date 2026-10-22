@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+
+{% block title %}Estate Operations | EstatePro{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">DIOCESAN ESTATES DEPARTMENT</span>
+        <h1>Estate Operations</h1>
+        <p>Coordinate inspections, property assets, service providers, compliance and estate development.</p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'inspection_register' %}" class="btn btn-light">
+            <i class="bi bi-clipboard2-check me-1"></i> Inspections
+        </a>
+        <a href="{% url 'asset_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Register asset
+        </a>
+    </div>
+</div>
+
+<!-- Operational KPIs -->
+<div class="kpi-grid">
+    <div class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-clipboard2-check"></i>
+        </div>
+        <div>
+            <span>Inspections</span>
+            <strong>{{ inspections_count|default:0 }}</strong>
+            <small>Recorded inspections</small>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
+        <div>
+            <span>Estate Assets</span>
+            <strong>{{ assets_count|default:0 }}</strong>
+            <small>Registered assets</small>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-icon warning">
+            <i class="bi bi-shield-exclamation"></i>
+        </div>
+        <div>
+            <span>Expired Compliance</span>
+            <strong>{{ expired_compliance_count|default:0 }}</strong>
+            <small>Items past expiry</small>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-kanban"></i>
+        </div>
+        <div>
+            <span>Active Projects</span>
+            <strong>{{ active_projects_count|default:0 }}</strong>
+            <small>Approved or in progress</small>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-icon warning">
+            <i class="bi bi-exclamation-diamond"></i>
+        </div>
+        <div>
+            <span>Open Risks</span>
+            <strong>{{ open_risks_count|default:0 }}</strong>
+            <small>Require risk oversight</small>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <div class="kpi-icon">
+            <i class="bi bi-shield-lock"></i>
+        </div>
+        <div>
+            <span>Unresolved Disputes</span>
+            <strong>{{ open_disputes_count|default:0 }}</strong>
+            <small>Claims and land disputes</small>
+        </div>
+    </div>
+</div>
+
+<!-- Operations navigation -->
+<div class="section-heading mt-4 mb-3">
+    <div>
+        <span class="eyebrow">WORKSPACES</span>
+        <h2 class="h4 mb-1">Operational management</h2>
+        <p class="text-muted mb-0">Access the tools required to manage estate activities.</p>
+    </div>
+</div>
+
+<div class="feature-grid">
+    <a class="feature-card" href="{% url 'inspection_register' %}">
+        <i class="bi bi-clipboard2-check"></i>
+        <div>
+            <h3>Inspections</h3>
+            <p>Record property condition, safety findings and corrective recommendations.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'asset_create' %}">
+        <i class="bi bi-box-seam"></i>
+        <div>
+            <h3>Estate Assets</h3>
+            <p>Track asset identification, acquisition costs, condition and warranties.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'contractor_create' %}">
+        <i class="bi bi-person-workspace"></i>
+        <div>
+            <h3>Contractors</h3>
+            <p>Maintain service provider contacts and contractor records.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'compliance_register' %}">
+        <i class="bi bi-shield-check"></i>
+        <div>
+            <h3>Compliance</h3>
+            <p>Monitor permits, insurance, statutory obligations and expiry dates.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'project_register' %}">
+        <i class="bi bi-kanban"></i>
+        <div>
+            <h3>Development Projects</h3>
+            <p>Monitor approvals, project budgets, expenditure and delivery dates.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'dispute_register' %}">
+        <i class="bi bi-shield-exclamation"></i>
+        <div>
+            <h3>Land Disputes</h3>
+            <p>Track claims, mediation, court proceedings and follow-up actions.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'risk_register' %}">
+        <i class="bi bi-exclamation-diamond"></i>
+        <div>
+            <h3>Risk Register</h3>
+            <p>Assess threats, mitigation measures, review dates and ownership.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'parking_space_create' %}">
+        <i class="bi bi-car-front"></i>
+        <div>
+            <h3>Parking Management</h3>
+            <p>Register parking spaces, allocations and vehicle details.</p>
+        </div>
+    </a>
+
+    <a class="feature-card" href="{% url 'visitor_create' %}">
+        <i class="bi bi-person-walking"></i>
+        <div>
+            <h3>Visitor Management</h3>
+            <p>Record visitor details, purpose of visit and entry/exit times.</p>
+        </div>
+    </a>
+</div>
+
+<!-- Compliance and inspections -->
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3 class="mb-1">Compliance Monitoring</h3>
+                    <small class="text-muted">Expiry dates and statutory obligations</small>
+                </div>
+                <a href="{% url 'compliance_register' %}"
+                   class="btn btn-sm btn-light">
+                    View all <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <div class="p-3">
+                {% for c in compliance %}
+                    <div class="activity">
+                        <div class="activity-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+
+                        <div class="flex-grow-1 min-width-0">
+                            <strong>{{ c.title }}</strong>
+                            <p class="mb-0">
+                                {% if c.property %}
+                                    {{ c.property.name }} ·
+                                {% endif %}
+                                {% if c.expiry_date %}
+                                    Expires {{ c.expiry_date|date:"d M Y" }}
+                                {% else %}
+                                    No expiry date recorded
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <span class="status-pill
+                            {% if c.expiry_date and c.expiry_date < today %}
+                                danger
+                            {% elif c.status|lower == 'valid' %}
+                                success
+                            {% else %}
+                                warning
+                            {% endif %}">
+                            {% if c.expiry_date and c.expiry_date < today %}
+                                Expired
+                            {% else %}
+                                {{ c.status|default:"Unspecified" }}
+                            {% endif %}
+                        </span>
+                    </div>
+                {% empty %}
+                    <div class="empty py-4 text-center">
+                        <i class="bi bi-shield-check fs-3 d-block mb-2"></i>
+                        No compliance records found.
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3 class="mb-1">Recent Inspections</h3>
+                    <small class="text-muted">Latest property condition assessments</small>
+                </div>
+                <a href="{% url 'inspection_register' %}"
+                   class="btn btn-sm btn-light">
+                    View all <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <div class="p-3">
+                {% for i in inspections %}
+                    <div class="activity">
+                        <div class="activity-icon">
+                            <i class="bi bi-clipboard2-check"></i>
+                        </div>
+
+                        <div class="flex-grow-1 min-width-0">
+                            <strong>
+                                {% if i.property %}
+                                    {{ i.property.name }}
+                                {% else %}
+                                    Inspection record
+                                {% endif %}
+                            </strong>
+                            <p class="mb-0">
+                                {{ i.get_inspection_type_display|default:i.inspection_type }}
+                                · {{ i.inspection_date|date:"d M Y" }}
+                            </p>
+                        </div>
+
+                        {% if i.score != None %}
+                            <span class="status-pill">
+                                Score: {{ i.score }}
+                            </span>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <div class="empty py-4 text-center">
+                        <i class="bi bi-clipboard2 fs-3 d-block mb-2"></i>
+                        No inspections have been recorded.
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Projects and risk oversight -->
+<div class="row g-4 mt-1">
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3 class="mb-1">Development Projects</h3>
+                    <small class="text-muted">Delivery and budget oversight</small>
+                </div>
+                <a href="{% url 'project_register' %}"
+                   class="btn btn-sm btn-light">View projects</a>
+            </div>
+
+            <div class="p-3">
+                {% for project in recent_projects %}
+                    <div class="activity">
+                        <div class="activity-icon">
+                            <i class="bi bi-building-gear"></i>
+                        </div>
+
+                        <div class="flex-grow-1 min-width-0">
+                            <strong>{{ project.name }}</strong>
+                            <p class="mb-0">
+                                {{ project.project_code }}
+                                {% if project.target_date %}
+                                    · Target {{ project.target_date|date:"d M Y" }}
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <span class="status-pill
+                            {% if project.status == 'completed' %}
+                                success
+                            {% elif project.status == 'on_hold' or project.status == 'cancelled' %}
+                                warning
+                            {% else %}
+                                {% if project.status == 'active' %}
+                                    success
+                                {% else %}
+                                    {% if project.status == 'approved' %}
+                                        success
+                                    {% else %}
+                                        {% if project.status == 'proposed' %}
+                                            warning
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}">
+                            {{ project.get_status_display }}
+                        </span>
+                    </div>
+                {% empty %}
+                    <div class="empty py-4 text-center">
+                        No development projects available.
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <section class="panel h-100">
+            <div class="panel-header">
+                <div>
+                    <h3 class="mb-1">Risk Oversight</h3>
+                    <small class="text-muted">Risk exposure and review schedule</small>
+                </div>
+                <a href="{% url 'risk_register' %}"
+                   class="btn btn-sm btn-light">Review register</a>
+            </div>
+
+            <div class="p-3">
+                {% for risk in recent_risks %}
+                    <div class="activity">
+                        <div class="activity-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+
+                        <div class="flex-grow-1 min-width-0">
+                            <strong>{{ risk.risk_title }}</strong>
+                            <p class="mb-0">
+                                {{ risk.reference }}
+                                {% if risk.review_date %}
+                                    · Review {{ risk.review_date|date:"d M Y" }}
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <span class="status-pill
+                            {% if risk.likelihood == 'critical' or risk.impact == 'critical' %}
+                                danger
+                            {% elif risk.likelihood == 'high' or risk.impact == 'high' %}
+                                warning
+                            {% else %}
+                                success
+                            {% endif %}">
+                            {{ risk.likelihood|title }} / {{ risk.impact|title }}
+                        </span>
+                    </div>
+                {% empty %}
+                    <div class="empty py-4 text-center">
+                        No risk records available.
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
