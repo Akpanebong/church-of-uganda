@@ -1,0 +1,1 @@
+Invoice, occupancy (TenantUnit) are created automatically from lease view
