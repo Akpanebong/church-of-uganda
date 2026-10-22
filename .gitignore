@@ -9,3 +9,7 @@ staticfiles/
 .idea/
 .vscode/
 *.log
+budget_9.xlsx
+db.sqlite3
+LOGO DIOCESE.docx
+core/management/commands/seed_demo.py
