@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
+from .utils import audit
 
 
 from django.contrib import messages
@@ -23,6 +24,13 @@ def model_form_view(request, model, form_class,
         obj = form.save()
 
         action = "updated" if is_update else "created"
+        audit(
+            request.user,
+            action,
+            obj,
+            description=f"{title} {action} successfully.",
+            request=request,
+        )
         messages.success(
             request,
             f"{title} {action} successfully.",
@@ -58,6 +66,13 @@ def model_delete_view(request, model, success_url, pk, title="Record", template_
                 "Deactivate the record instead, or resolve the linked leases, invoices and payments first.",
             )
             return redirect(success_url)
+        audit(
+            request.user,
+            "deleted",
+            obj,
+            description=f"{title} deleted successfully.",
+            request=request,
+        )
         messages.success(request, f"{title} deleted successfully.")
         return redirect(success_url)
     return render(request, template_name,
