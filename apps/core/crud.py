@@ -10,7 +10,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 
 def model_form_view(request, model, form_class,
-    template_name, success_url, pk=None, title="Record",):
+    template_name, success_url, pk=None, title="Record", initial=None,
+    form_kwargs=None, locked_fields=None, locked_property=None,):
     instance = get_object_or_404(model, pk=pk) if pk is not None else None
     is_update = instance is not None
 
@@ -18,7 +19,13 @@ def model_form_view(request, model, form_class,
         data=request.POST if request.method == "POST" else None,
         files=request.FILES if request.method == "POST" else None,
         instance=instance,
+        initial=initial or {},
+        **(form_kwargs or {}),
     )
+
+    for field_name in locked_fields or ():
+        if field_name in form.fields:
+            form.fields[field_name].disabled = True
 
     if request.method == "POST" and form.is_valid():
         obj = form.save()
@@ -46,6 +53,7 @@ def model_form_view(request, model, form_class,
         "object": instance,
         "page_title": f"{'Update' if is_update else 'Create'} {title}",
         "is_update": is_update,
+        "locked_property": locked_property,
     }
 
     return render(request, template_name, context)

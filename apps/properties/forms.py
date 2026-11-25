@@ -17,6 +17,13 @@ class BuildingForm(forms.ModelForm):
         exclude = ("created_at", "updated_at")
 
 class UnitForm(forms.ModelForm):
+    def __init__(self, *args, property_obj=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if property_obj is not None:
+            self.fields["building"].queryset = Building.objects.filter(
+                property=property_obj
+            )
+
     class Meta:
         model = Unit
         exclude = ("created_at", "updated_at")

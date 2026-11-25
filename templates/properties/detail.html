@@ -86,13 +86,13 @@
                 <h3>Units and buildings</h3>
 
                 <div class="d-flex gap-2 flex-wrap">
-                    <a href="{% url 'building_create' %}"
+                    <a href="{% url 'building_create' %}?property={{ property.pk }}"
                        class="btn btn-sm btn-light">
                         <i class="bi bi-building me-1" aria-hidden="true"></i>
                         Add building
                     </a>
 
-                    <a href="{% url 'unit_create' %}"
+                    <a href="{% url 'unit_create' %}?property={{ property.pk }}"
                        class="btn btn-sm btn-outline-secondary">
                         <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
                         Add unit
@@ -165,7 +165,7 @@
                                         There are no units associated with this property yet.
                                     </p>
 
-                                    <a href="{% url 'unit_create' %}"
+                                    <a href="{% url 'unit_create' %}?property={{ property.pk }}"
                                        class="btn btn-sm btn-primary">
                                         <i class="bi bi-plus-lg me-1"
                                            aria-hidden="true"></i>
