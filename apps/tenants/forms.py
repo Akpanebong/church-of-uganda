@@ -5,6 +5,10 @@ class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
         exclude = ("created_at", "updated_at")
+        widgets = {
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': '2'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': '2'}),
+        }
 
 
 class TenantUnitForm(forms.ModelForm):

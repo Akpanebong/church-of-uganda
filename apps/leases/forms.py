@@ -28,7 +28,7 @@ class LeaseForm(forms.ModelForm):
         widgets = {
             "start_date": forms.DateInput(attrs={"type": "date"}),
             "end_date": forms.DateInput(attrs={"type": "date"}),
-            "terms": forms.Textarea(attrs={"rows": 2}),
+            "terms": forms.Textarea(attrs={"rows": 2, 'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
