@@ -1,6 +1,7 @@
 from django import forms
 from .models import Property, Building, Unit
 
+
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
@@ -11,10 +12,12 @@ class PropertyForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"class": "form-control", 'type': 'text', 'rows': 1}),
         }
 
+
 class BuildingForm(forms.ModelForm):
     class Meta:
         model = Building
         exclude = ("created_at", "updated_at")
+
 
 class UnitForm(forms.ModelForm):
     def __init__(self, *args, property_obj=None, **kwargs):

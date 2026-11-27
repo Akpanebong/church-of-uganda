@@ -23,6 +23,7 @@ def tenant_unit_update(request, pk): return model_form_view(request, TenantUnit,
 @login_required
 def tenant_unit_delete(request, pk): return model_delete_view(request, TenantUnit, "tenant_list", pk, "Tenant occupancy")
 
+
 @login_required
 def occupancy_list(request):
     qs = TenantUnit.objects.select_related("tenant", "unit", "unit__property").order_by("-active", "-move_in")

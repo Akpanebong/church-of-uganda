@@ -17,12 +17,14 @@ class LeaseExpiryNotificationCommandTests(TestCase):
             property_type="residential",
             address="Test address",
         )
+        self.unit_property = property_
         unit = Unit.objects.create(property=property_, unit_number="1A")
         tenant = Tenant.objects.create(
             tenant_id="TEN-TEST",
             full_name="Test tenant",
             phone="0000000000",
         )
+        self.tenant = tenant
         self.today = date(2026, 1, 1)
 
         for index, days in enumerate((30, 20, 10, 7, 1, 2, 31)):
@@ -46,3 +48,24 @@ class LeaseExpiryNotificationCommandTests(TestCase):
         self.assertEqual(send_reminder.call_count, 4)
         days_sent = sorted(call.kwargs["days_remaining"] for call in send_reminder.call_args_list)
         self.assertEqual(days_sent, [1, 7, 10, 20])
+
+    def test_deleting_last_current_lease_releases_unit(self):
+        unit = Unit.objects.create(
+            property=self.unit_property,
+            unit_number="2A",
+            status="occupied",
+        )
+        lease = Lease.objects.create(
+            lease_number="LEASE-DELETE-TEST",
+            tenant=self.tenant,
+            unit=unit,
+            start_date=self.today,
+            end_date=self.today + timedelta(days=30),
+            rent=100,
+            status="active",
+        )
+
+        lease.delete()
+
+        unit.refresh_from_db()
+        self.assertEqual(unit.status, "available")

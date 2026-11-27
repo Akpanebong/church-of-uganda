@@ -4,13 +4,14 @@ from .models import Tenant, TenantUnit
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        exclude = ("created_at", "updated_at")
+        exclude = ("created_at", "updated_at", "tenant_id")
         widgets = {
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': '2'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': '2'}),
         }
 
 
+#OCCUPANCY
 class TenantUnitForm(forms.ModelForm):
     class Meta:
         model = TenantUnit

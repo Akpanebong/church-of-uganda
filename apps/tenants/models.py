@@ -1,6 +1,7 @@
 from django.db import models
 from apps.core.models import TimeStampedModel
 from apps.properties.models import Unit
+from apps.core.utils import generate_reference
 
 class Tenant(TimeStampedModel):
     STATUS=[("active","Active"),("inactive","Inactive"),("prospect","Prospect")]
@@ -13,6 +14,10 @@ class Tenant(TimeStampedModel):
     emergency_contact=models.CharField(max_length=180,blank=True)
     status=models.CharField(max_length=20,choices=STATUS,default="active")
     notes=models.TextField(blank=True)
+    def save(self, *args, **kwargs):
+        if not self.tenant_id:
+            self.tenant_id = generate_reference("TEN", type(self), "tenant_id")
+        super().save(*args, **kwargs)
     def __str__(self): return f"{self.tenant_id} — {self.full_name}"
 
 

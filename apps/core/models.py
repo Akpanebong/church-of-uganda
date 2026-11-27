@@ -18,6 +18,8 @@ class Notification(TimeStampedModel):
     def __str__(self):
         return self.title
 
+    class Meta:
+        ordering = ["-created_at"]
 
 class AuditLog(TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)

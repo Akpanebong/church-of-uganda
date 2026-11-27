@@ -2,6 +2,7 @@ from django.db import models
 from apps.core.models import TimeStampedModel
 from apps.tenants.models import Tenant
 from apps.properties.models import Unit, Property
+from apps.core.utils import generate_reference
 
 
 class Invoice(TimeStampedModel):
@@ -16,6 +17,17 @@ class Invoice(TimeStampedModel):
     paid_amount=models.DecimalField(max_digits=14,decimal_places=2,default=0)
     status=models.CharField(max_length=20,choices=STATUS,default="unpaid")
     lease=models.OneToOneField("leases.Lease", null=True, blank=True, on_delete=models.SET_NULL, related_name="invoice")
+
+    def __str__(self):
+        return f'{self.invoice_number} ({self.unit}) - {self.tenant}'
+
+    def save(self, *args, **kwargs):
+        if self.lease_id:
+            self.due_date = self.lease.end_date
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None and "due_date" not in update_fields:
+                kwargs["update_fields"] = set(update_fields) | {"due_date"}
+        super().save(*args, **kwargs)
 
     @property
     def balance(self):
@@ -32,6 +44,13 @@ class Payment(TimeStampedModel):
     method=models.CharField(max_length=20,choices=METHODS)
     reference=models.CharField(max_length=100,blank=True)
     notes=models.TextField(blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.receipt_number:
+            self.receipt_number = generate_reference("RCT", type(self), "receipt_number")
+        if not self.reference:
+            self.reference = self.receipt_number
+        super().save(*args, **kwargs)
 
 
 class Expense(TimeStampedModel):

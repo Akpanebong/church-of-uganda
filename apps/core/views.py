@@ -21,7 +21,7 @@ from .models import DioceseProfile, EstateDocument, Notification, AuditLog
 from .forms import DioceseProfileForm, EstateDocumentForm
 from .crud import model_form_view, model_delete_view
 from django.shortcuts import redirect
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 from django.db.models import (Case, Count, DecimalField, ExpressionWrapper, F, Q, Sum, Value, When,)
 from django.db.models.functions import Coalesce
@@ -31,7 +31,24 @@ from django.utils import timezone
 @login_required
 def dashboard(request):
     today = timezone.localdate()
-    month_start = today.replace(day=1)
+    try:
+        selected_year = int(request.GET.get("year", today.year))
+    except (TypeError, ValueError):
+        selected_year = today.year
+
+    available_years = sorted(set(
+        list(Payment.objects.dates("payment_date", "year"))
+        + list(Expense.objects.dates("expense_date", "year"))
+        + list(Invoice.objects.dates("issue_date", "year"))
+        + list(Lease.objects.dates("end_date", "year"))
+        + [date(today.year, 1, 1)]
+    ), reverse=True)
+    available_years = [year.year for year in available_years]
+    if selected_year not in available_years:
+        selected_year = today.year
+
+    year_start = date(selected_year, 1, 1)
+    year_end = date(selected_year, 12, 31)
     next_30_days = today + timedelta(days=30)
     next_7_days = today + timedelta(days=7)
 
@@ -60,7 +77,9 @@ def dashboard(request):
     # ---------------------------------------------------------
     # Finance: invoices, receipts and expenditure
     # ---------------------------------------------------------
-    invoices = Invoice.objects.exclude(status="cancelled")
+    invoices = Invoice.objects.exclude(status="cancelled").filter(
+        issue_date__range=(year_start, year_end)
+    )
 
     # Clamp each invoice's outstanding balance to zero.
     invoice_balance = Case(
@@ -92,30 +111,14 @@ def dashboard(request):
         paid_amount__lt=F("amount"),
     )
 
-    payments = Payment.objects.all()
-    monthly_payments = payments.filter(
-        payment_date__gte=month_start,
-        payment_date__lte=today,
-    )
+    payments = Payment.objects.filter(payment_date__range=(year_start, year_end))
+    monthly_payments = payments
     monthly_collections = monthly_payments.aggregate(
         total=Coalesce(Sum("amount"), zero_money),
     )["total"]
 
-    previous_month_start = (
-        (month_start - timedelta(days=1)).replace(day=1)
-    )
-    previous_month_end = month_start - timedelta(days=1)
-
-    previous_month_collections = payments.filter(
-        payment_date__gte=previous_month_start,
-        payment_date__lte=previous_month_end,
-    ).aggregate(
-        total=Coalesce(Sum("amount"), zero_money),
-    )["total"]
-
     monthly_expenses = Expense.objects.filter(
-        expense_date__gte=month_start,
-        expense_date__lte=today,
+        expense_date__range=(year_start, year_end),
     ).aggregate(
         total=Coalesce(Sum("amount"), zero_money),
     )["total"]
@@ -127,8 +130,14 @@ def dashboard(request):
     # ---------------------------------------------------------
     tenants_count = Tenant.objects.filter(status="active").count()
 
-    active_leases = Lease.objects.filter(status="active")
-    expiring_leases = active_leases.filter(
+    active_leases = Lease.objects.filter(
+        status="active",
+        start_date__lte=year_end,
+        end_date__gte=year_start,
+    )
+    expiring_leases = Lease.objects.filter(
+        status__in=["active", "renewal"],
+        start_date__lte=year_end,
         end_date__gte=today,
         end_date__lte=next_30_days,
     )
@@ -136,6 +145,8 @@ def dashboard(request):
     expired_unresolved_leases = Lease.objects.filter(
         end_date__lt=today,
         status="active",
+        end_date__gte=year_start,
+        end_date__lte=year_end,
     )
 
     # ---------------------------------------------------------
@@ -305,7 +316,7 @@ def dashboard(request):
         "outstanding_invoices_count": outstanding_invoices.count(),
         "overdue_invoices_count": overdue_invoices.count(),
         "monthly_collections": monthly_collections,
-        "previous_month_collections": previous_month_collections,
+        "previous_month_collections": 0,
         "monthly_expenses": monthly_expenses,
         "monthly_net_cashflow": monthly_net_cashflow,
 
@@ -313,6 +324,8 @@ def dashboard(request):
         "active_leases": active_leases.count(),
         "leases_expiring": expiring_leases.count(),
         "expired_unresolved_leases": expired_unresolved_leases.count(),
+        "selected_year": selected_year,
+        "available_years": available_years,
 
         # Operations
         "open_maintenance": maintenance.count(),

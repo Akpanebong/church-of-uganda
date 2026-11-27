@@ -78,6 +78,73 @@
     </article>
 </section>
 
+<section class="panel mt-4">
+    <div class="panel-header">
+        <div>
+            <h3>Register filters</h3>
+            <small>Filter invoices and receipts by reference, tenant, status or date range.</small>
+        </div>
+        <button class="btn btn-sm btn-light"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#finance-register-filters"
+                aria-expanded="{% if filters.q or filters.tenant or filters.status or filters.date_from or filters.date_to or filters.record_type != 'all' %}true{% else %}false{% endif %}"
+                aria-controls="finance-register-filters">
+            <i class="bi bi-funnel me-1" aria-hidden="true"></i>
+            Toggle filters
+        </button>
+    </div>
+    <div id="finance-register-filters"
+         class="collapse{% if filters.q or filters.tenant or filters.status or filters.date_from or filters.date_to or filters.record_type != 'all' %} show{% endif %}">
+    <form method="get" class="p-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-3">
+                <label for="finance-record-type" class="form-label">Record type</label>
+                <select id="finance-record-type" name="record_type" class="form-select">
+                    <option value="all" {% if filters.record_type == 'all' %}selected{% endif %}>All</option>
+                    <option value="invoices" {% if filters.record_type == 'invoices' %}selected{% endif %}>Invoices</option>
+                    <option value="payments" {% if filters.record_type == 'payments' %}selected{% endif %}>Receipts / payments</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="finance-search" class="form-label">Invoice / receipt</label>
+                <input id="finance-search" name="q" value="{{ filters.q }}" class="form-control" placeholder="Number or reference">
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="finance-tenant" class="form-label">Tenant</label>
+                <select id="finance-tenant" name="tenant" class="form-select">
+                    <option value="">All tenants</option>
+                    {% for tenant in tenants %}
+                        <option value="{{ tenant.pk }}" {% if filters.tenant == tenant.pk|stringformat:'s' %}selected{% endif %}>{{ tenant.full_name }} ({{ tenant.tenant_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="finance-status" class="form-label">Invoice status</label>
+                <select id="finance-status" name="status" class="form-select">
+                    <option value="">All statuses</option>
+                    {% for value, label in invoice_statuses %}
+                        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="finance-date-from" class="form-label">Date from</label>
+                <input id="finance-date-from" type="date" name="date_from" value="{{ filters.date_from }}" class="form-control">
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="finance-date-to" class="form-label">Date to</label>
+                <input id="finance-date-to" type="date" name="date_to" value="{{ filters.date_to }}" class="form-control">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Apply filters</button>
+                <a class="btn btn-light ms-1" href="{% url 'finance_d' %}">Clear</a>
+            </div>
+        </div>
+    </form>
+    </div>
+</section>
+
 {# Invoice register #}
 <section class="panel mt-4">
     <div class="panel-header">

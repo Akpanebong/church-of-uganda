@@ -1,10 +1,14 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from apps.properties.models import Unit
 from .models import Lease
 from .forms import LeaseForm
 from apps.core.crud import model_form_view, model_delete_view
+from apps.core.utils import audit
+from apps.finance.models import Payment
 from datetime import timedelta
 from django.utils import timezone
 
@@ -12,7 +16,8 @@ from django.utils import timezone
 @login_required
 def lease_list(request):
     today = timezone.localdate()
-    expiry_cutoff = today + timedelta(days=40)
+    expiry_cutoff = today + timedelta(days=30)
+    expiring_statuses = ["active", "renewal"]
 
     leases = (
         Lease.objects
@@ -29,12 +34,12 @@ def lease_list(request):
         "total_leases": Lease.objects.count(),
         "active_leases": Lease.objects.filter(status="active").count(),
         "expiring_soon": Lease.objects.filter(
-            status="active",
+            status__in=expiring_statuses,
             end_date__gte=today,
             end_date__lte=expiry_cutoff,
         ).count(),
         "past_end_date": Lease.objects.filter(
-            status="active",
+            status__in=expiring_statuses,
             end_date__lt=today,
         ).count(),
     }
@@ -44,14 +49,44 @@ def lease_list(request):
 
 @login_required
 def lease_create(request):
-    return model_form_view(request, Lease, LeaseForm, "leases/lease_form.html",
-                           "lease_list", title="Lease")
+    form = LeaseForm(
+        data=request.POST if request.method == "POST" else None,
+        files=request.FILES if request.method == "POST" else None,
+        include_initial_payment=True,
+    )
+    if request.method == "POST" and form.is_valid():
+        with transaction.atomic():
+            lease = form.save()
+            payment_amount = lease.deposit
+            if payment_amount:
+                Payment.objects.create(
+                    tenant=lease.tenant,
+                    invoice=lease.invoice,
+                    payment_date=form.cleaned_data["initial_payment_date"],
+                    amount=payment_amount,
+                    method=form.cleaned_data["initial_payment_method"],
+                    notes=f"Initial payment for lease {lease.lease_number}",
+                )
+            audit(request.user, "created", lease, "Lease created successfully.", request)
+        message = "Lease created successfully."
+        if payment_amount:
+            message = "Lease created and initial payment recorded successfully."
+        messages.success(request, message)
+        return redirect("lease_list")
+
+    return render(request, "leases/lease_form.html", {
+        "form": form,
+        "object": None,
+        "page_title": "Create Lease",
+        "is_update": False,
+    })
 
 
 @login_required
 def lease_update(request, pk):
     return model_form_view(request, Lease, LeaseForm, "leases/lease_form.html",
-                           "lease_list", pk, "Lease")
+                           "lease_list", pk, "Lease",
+                           form_kwargs={"include_initial_payment": False})
 
 
 @login_required

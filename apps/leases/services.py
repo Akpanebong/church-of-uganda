@@ -68,7 +68,7 @@ def sync_lease(instance):
             "tenant": instance.tenant,
             "unit": instance.unit,
             "issue_date": timezone.localdate(),
-            "due_date": instance.start_date,
+            "due_date": instance.end_date,
             "description": f"Rent and service charge for {instance.unit}",
             "amount": amount,
             "paid_amount": paid_amount,
@@ -80,7 +80,7 @@ def sync_lease(instance):
     if not created:
         invoice.tenant = instance.tenant
         invoice.unit = instance.unit
-        invoice.due_date = instance.start_date
+        invoice.due_date = instance.end_date
         invoice.description = (
             f"Rent and service charge for {instance.unit}"
         )

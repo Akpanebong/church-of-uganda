@@ -29,6 +29,22 @@
     </div>
 </div>
 
+<form method="get" class="panel mb-4" aria-label="Dashboard filters">
+    <div class="row g-3 align-items-end">
+        <div class="col-9 col-sm-5 col-md-9">
+            <label for="dashboard-year" class="form-label">Financial year</label>
+            <select id="dashboard-year" name="year" class="form-select">
+                {% for year in available_years %}
+                    <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-3">
+            <button class="btn btn-primary" type="submit">Apply filter</button>
+        </div>
+    </div>
+</form>
+
 {# 1. Executive KPIs #}
 <section class="kpi-grid" aria-label="Executive portfolio indicators">
     <article class="kpi">
@@ -105,7 +121,7 @@
             <div class="panel-header">
                 <div>
                     <h3>Financial performance</h3>
-                    <small>Current month, {{ today|date:"F Y" }}</small>
+                    <small>Selected financial year, {{ selected_year }}</small>
                 </div>
                 <span class="status-pill">
                     Monthly summary

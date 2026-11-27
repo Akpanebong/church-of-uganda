@@ -2,6 +2,7 @@ from django.db import models
 from apps.core.models import TimeStampedModel
 from apps.tenants.models import Tenant
 from apps.properties.models import Unit
+from apps.core.utils import generate_reference
 
 class Lease(TimeStampedModel):
     STATUS=[("draft","Draft"),("active","Active"),("expired","Expired"),("terminated","Terminated"),("renewal","Renewal Pending")]
@@ -18,6 +19,10 @@ class Lease(TimeStampedModel):
     status=models.CharField(max_length=30,choices=STATUS,default="draft")
     terms=models.TextField(blank=True)
     expiry_notice_sent=models.BooleanField(default=False)
+    def save(self, *args, **kwargs):
+        if not self.lease_number:
+            self.lease_number = generate_reference("LEASE", type(self), "lease_number")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.lease_number
